@@ -10,7 +10,7 @@ function loadShader(gl, type, source) {
   }
   return shader;
 }
-function initShaderProgram(gl, vsSource, fsSource) {
+function initShaderProgram(gl) {
   const vsSource = `
     attribute vec4 aVertexPosition;
     uniform mat4 uModelViewMatrix;
