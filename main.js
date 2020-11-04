@@ -11,4 +11,4 @@ function main() {
   // Clear the color buffer with specified clear color
   gl.clear(gl.COLOR_BUFFER_BIT);
 }
-main()
+main();
