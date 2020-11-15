@@ -1,9 +1,5 @@
 const data = [
-    `Usage "Check in Consolidation" enabled`,
-    `Usage "Check in Consolidation" disabled`,
-    `Usage "Check in Consolidation" prepared`,
-    `Usage "Check in Consolidation" added`,
-    `Usage "Check in Consolidation" deleted`
+    
 ];
 const oInput = document.getElementById("idSearch");
 oInput.addEventListener("keyup", function onKeyUp(event) {
