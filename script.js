@@ -1,7 +1,5 @@
-const data = [
-    
-];
 const oInput = document.getElementById("idSearch");
+const oFileInput = document.getElementById("idFile");
 oInput.addEventListener("keyup", function onKeyUp(event) {
   if (event.keyCode === 13) {
     // Cancel the default action, if needed
@@ -13,12 +11,18 @@ oInput.addEventListener("keyup", function onKeyUp(event) {
 function search()
 {
     console.clear();
-    let sPattern = oInput.value;
-    let aResults = _search(data, sPattern);
-    let iMax = Math.max.apply(null, aResults.map((s) => s.score));
-    function format({ text: t, score: s}) { return { text: t, score: Math.round10(s, -2) }; }
-    console.table(aResults.map(format));
-    console.table(aResults.filter((res) => res.score >= iMax).map(format));
+    let file = oFileInput.files[0];
+    let reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = () => {
+      let data = reader.result.match(/^.*[^\r\n]$/mg).filter((s) => !s.match(/^\/\//) && !s.match(/^[\s]*$/g));
+      let sPattern = oInput.value;
+      let aResults = _search(data, sPattern);
+      let iMax = Math.max.apply(null, aResults.map((s) => s.score));
+      function format({ text: t, score: s}) { return { text: t, score: Math.round10(s, -2) }; }
+      console.table(aResults.map(format));
+      console.table(aResults.filter((res) => res.score >= iMax).map(format));
+    }
 }
 function decimalAdjust(type, value, exp) {
   // Если степень не определена, либо равна нулю...
@@ -57,9 +61,9 @@ function getScore(token, word) {
   }
   return score / word.length;
 }
-function _search(aStrings, sPattern) {
+function _search(data, sPattern) {
   let tokens = sPattern.toLowerCase().match(/(\w+)/g);
-  let _data = aStrings.map((s) => s.toLowerCase().match(/(\w+)/g));
+  let _data = data.map((s) => s.toLowerCase().match(/(\w+)/g));
   let commonWords = _data[0].reduce((res, word, index) => {
     if (_data.filter((words) => words[index] === word).length === _data.length) {
       res.push(word);
@@ -98,22 +102,34 @@ function _search(aStrings, sPattern) {
   });
   // console.table(_data.map((words) => words.join(" ")));
   let scores = getScores(_data, tokens);
+  let found = !!scores.filter((score) => score > 0.6).length;
   return data.map((text, i) => {
     return {
       text: text,
-      score: scores[i]
+      score: found ? scores[i] : 1
     };
   });
 }
 
 function getScores(_data, tokens) {
   let patternWeight = 1 / tokens.join("").length;
+  // console.table(_data.map((words) => {
+  //   let textLength = words.join("").length;
+  //   let _tab = { text: words.join(" ") };
+  //   tokens.forEach((token) => {
+  //     _tab[token] = words.reduce((r, word) => {
+  //       let _score = getScore(token, word) * token.length * patternWeight * word.length / textLength;
+  //       return Math.round10(_score, -3) + r;
+  //     }, 0);
+  //   });
+  //   return _tab;
+  // }));
   console.table(_data.map((words) => {
     let textLength = words.join("").length;
     let _tab = { text: words.join(" ") };
     tokens.forEach((token) => {
       _tab[token] = words.reduce((r, word) => {
-        let _score = getScore(token, word) * token.length * patternWeight * word.length / textLength;
+        let _score = getScore(token, word) * word.length / textLength;
         return Math.round10(_score, -3) + r;
       }, 0);
     });
@@ -122,9 +138,13 @@ function getScores(_data, tokens) {
   let scores = _data.map((words) => {
     let textLength = words.join("").length;
     return words.map((word) => {
-      let _score = tokens.reduce((res, token) => res + getScore(token, word) * token.length * patternWeight, 0);
+      // let _score = tokens.reduce((res, token) => res + getScore(token, word) * token.length * patternWeight, 0);
+      let _score = tokens.reduce((res, token) => res + getScore(token, word), 0);
       return _score * word.length / textLength;
     }).reduce((res, _score) => res + _score);
   });
+  let max = Math.max.apply(null, scores);
+  let r = scores.map((s) => Math.round10(s / max, -3));
+  console.log(r);
   return scores;
 }

@@ -6,11 +6,17 @@
     <script type="text/javascript" src="./script.js" defer></script>
   </head>
   <body>
-    <input id="idSearch" type="search" size=50pm/>
-    <br>
-    <br>
-    <button type="button" name="button" onclick="search()" id="idButton">Search</button>
-    <br>
-    <a href='https://www.goshy.de' title='goshy.de'>home</a>
+    <div>
+      <div>
+        <label>Select text for search</label>
+        <input id="idFile" type="file" accept="*.txt" required="true"/>
+      </div>
+      <div>
+        <p>
+          <button type="button" name="button" onclick="search()" id="idButton">Search</button>
+          <input id="idSearch" type="search" size=50pm/>
+        </p>
+      </div>
+    </div>
   </body>
 </html>
