@@ -11,12 +11,20 @@ oInput.addEventListener("keyup", function onKeyUp(event) {
 function search()
 {
     console.clear();
+    let sPattern = oInput.value;
+    if (!sPattern) {
+      console.log("Please enter a search string");
+      return;
+    }
     let file = oFileInput.files[0];
     let reader = new FileReader();
+    if (!file) {
+      console.log("Please select a text file");
+      return;
+    }
     reader.readAsText(file);
     reader.onload = () => {
       let data = reader.result.match(/^.*[^\r\n]$/mg).filter((s) => !s.match(/^\/\//) && !s.match(/^[\s]*$/g));
-      let sPattern = oInput.value;
       let aResults = _search(data, sPattern);
       let iMax = Math.max.apply(null, aResults.map((s) => s.score));
       function format({ text: t, score: s}) { return { text: t, score: Math.round10(s, -2) }; }
@@ -62,7 +70,7 @@ function getScore(token, word) {
   return score / word.length;
 }
 function _search(data, sPattern) {
-  let tokens = sPattern.toLowerCase().match(/(\w+)/g);
+  let tokens = sPattern && sPattern.toLowerCase().match(/(\w+)/g) || [];
   let _data = data.map((s) => s.toLowerCase().match(/(\w+)/g));
   let commonWords = _data[0].reduce((res, word, index) => {
     if (_data.filter((words) => words[index] === word).length === _data.length) {
